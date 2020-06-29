@@ -1,0 +1,26 @@
+html, body, #root, .app {
+    height: 100%;
+}
+
+.app {
+    background-color: #40a9ff;
+    overflow: auto;
+}
+
+.app__content {
+    padding: 15px;
+}
+
+.app__col {
+    margin-bottom: 15px;
+}
+
+@media screen and (min-width: 1200px) {
+    .app__col {
+        margin: 0;
+    }
+
+    .app__content {
+        padding: 50px;
+    }
+}

@@ -15,6 +15,17 @@ html, body, #root, .app {
     margin-bottom: 15px;
 }
 
+.app__loader {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app__loader .ant-spin-dot-item {
+    background-color: #fff;
+}
+
 @media screen and (min-width: 1200px) {
     .app__col {
         margin: 0;

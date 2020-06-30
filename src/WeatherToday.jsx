@@ -1,64 +1,95 @@
 import React from "react";
-import { Card, Typography} from "antd";
+import axios from "axios";
+import { Card, Typography, Spin, Result } from "antd";
 
-export default ({ current }) => {
-  const currentDate = new Date(current.dt * 1000).toLocaleString("ru", {
-    month: "long",
-    day: "numeric",
-    weekday: "long"
-  });
+export default class WeatherTody extends React.Component {
+  state = {
+    data: null,
+    error: null,
+    isLoading: true,
+  };
 
-  const currentTime = new Date(current.dt * 1000).toLocaleString("ru", {
-    hour: "numeric",
-    minute: "numeric",
-  });
+  componentDidMount() {
+    const {positionLatitude, positionLongitude, apiKey} = this.props;
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${positionLatitude}&lon=${positionLongitude}&appid=${apiKey}&lang=ru&units=metric`;
+    axios
+      .get(url)
+      .then((response) => this.setState({ data: response.data, isLoading: false }))
+      .catch((error) => this.setState({ error, isLoading: false }));
+  }
 
-  const currentPressure = Math.round(current.main.pressure / 1.33);
+  render() {
+    const {isLoading, data, error } = this.state;
 
-  const currentSunrise = new Date(current.sys.sunrise * 1000).toLocaleString("ru", {
-    hour: "numeric",
-    minute: "numeric",
-  });
+    if (isLoading) {
+      return (
+        <Card>
+          <Spin />
+        </Card>
+      );
+    }
 
-  const currentSunset = new Date(current.sys.sunset * 1000).toLocaleString("ru", {
-    hour: "numeric",
-    minute: "numeric",
-  });
+    if (error) {
+      return <Result status="error" title={error.message} />;
+    }
 
-  return (
-    <Card title={`${current.name} | ${currentDate}`} bordered={false}>
-      <Typography.Title>{current.main.temp}°</Typography.Title>
+    const currentDate = new Date(data.dt * 1000).toLocaleString("ru", {
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+    });
 
-      <Typography.Paragraph>
-        <Typography.Text>Последнее обновление:</Typography.Text>&nbsp;
-        <Typography.Text strong>{currentTime}</Typography.Text>
-      </Typography.Paragraph>
+    const currentTime = new Date(data.dt * 1000).toLocaleString("ru", {
+      hour: "numeric",
+      minute: "numeric",
+    });
 
-      <Typography.Paragraph>
-        <Typography.Text>Ощущается как</Typography.Text>&nbsp;
-        <Typography.Text strong>{Math.round(current.main.feels_like)}°</Typography.Text>
-      </Typography.Paragraph>
+    const currentPressure = Math.round(data.main.pressure / 1.33);
 
-      <Typography.Paragraph>
-        <Typography.Text>Восход:</Typography.Text>&nbsp;
-        <Typography.Text strong>{currentSunrise}</Typography.Text>
-      </Typography.Paragraph>
+    const currentSunrise = new Date(data.sys.sunrise * 1000).toLocaleString("ru", {
+      hour: "numeric",
+      minute: "numeric",
+    });
 
-      <Typography.Paragraph>
-        <Typography.Text>Закат:</Typography.Text>&nbsp;
-        <Typography.Text strong>{currentSunset}</Typography.Text>
-      </Typography.Paragraph>
+    const currentSunset = new Date(data.sys.sunset * 1000).toLocaleString("ru", {
+      hour: "numeric",
+      minute: "numeric",
+    });
 
-      <Typography.Paragraph>
-        <Typography.Text>Давление:</Typography.Text>&nbsp;
-        <Typography.Text strong>{currentPressure} мм рт. ст.</Typography.Text>
-      </Typography.Paragraph>
+    return (
+      <Card title={`${data.name} | ${currentDate}`} bordered={false}>
+        <Typography.Title>{data.main.temp}°</Typography.Title>
 
-      <Typography.Paragraph>
-        <Typography.Text>Влажность:</Typography.Text>&nbsp;
-        <Typography.Text strong>{current.main.humidity}%</Typography.Text>
-      </Typography.Paragraph>
+        <Typography.Paragraph>
+          <Typography.Text>Последнее обновление:</Typography.Text>&nbsp;
+          <Typography.Text strong>{currentTime}</Typography.Text>
+        </Typography.Paragraph>
 
-    </Card>
-  );
-};
+        <Typography.Paragraph>
+          <Typography.Text>Ощущается как</Typography.Text>&nbsp;
+          <Typography.Text strong>{Math.round(data.main.feels_like)}°</Typography.Text>
+        </Typography.Paragraph>
+
+        <Typography.Paragraph>
+          <Typography.Text>Восход:</Typography.Text>&nbsp;
+          <Typography.Text strong>{currentSunrise}</Typography.Text>
+        </Typography.Paragraph>
+
+        <Typography.Paragraph>
+          <Typography.Text>Закат:</Typography.Text>&nbsp;
+          <Typography.Text strong>{currentSunset}</Typography.Text>
+        </Typography.Paragraph>
+
+        <Typography.Paragraph>
+          <Typography.Text>Давление:</Typography.Text>&nbsp;
+          <Typography.Text strong>{currentPressure} мм рт. ст.</Typography.Text>
+        </Typography.Paragraph>
+
+        <Typography.Paragraph>
+          <Typography.Text>Влажность:</Typography.Text>&nbsp;
+          <Typography.Text strong>{data.main.humidity}%</Typography.Text>
+        </Typography.Paragraph>
+      </Card>
+    );
+  }
+}
